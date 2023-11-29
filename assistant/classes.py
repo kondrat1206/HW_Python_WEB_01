@@ -194,7 +194,7 @@ class Record:
 
         return result
     
-    def change_home_address(self, new_hm):
+    def change_home_address(self, hm):
         
         self.home_address.value = hm.value
         result = f'Value \"{self.home_address.value}\" added to address of \"{self.name.value}\"\n'
