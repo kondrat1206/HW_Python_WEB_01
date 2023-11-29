@@ -5,7 +5,7 @@ import pickle
 import os
 import re
 from prompt_toolkit import prompt
-from assistant.classes import AddressBook, Record, Name, Phone, Birthday, MyCompleter
+from assistant.classes import AddressBook, Record, Name, Phone, Birthday, Email, HomeAddress, MyCompleter
 from assistant.sortfolder import check_args, list_files_recursive, sort, unpack_archives, normalize, remove_empty_directories, library
 from assistant.project_notes import PersonalAssistant
 
@@ -140,6 +140,8 @@ def add_contact(param_list):
     name = Name(None)
     phone = Phone(None)
     birthday = Birthday(None)
+    email = Email(None)
+    home_address = HomeAddress(None)
 
     if len(param_list) == 1:
         try:
@@ -177,9 +179,9 @@ def add_contact(param_list):
 
     if phone.value != None:
         result = address_book.add_record(
-            Record(name, phone=phone, birthday=birthday))
+            Record(name, phone=phone, birthday=birthday, email=email, home_address=home_address))
     else:
-        result = address_book.add_record(Record(name, birthday=birthday))
+        result = address_book.add_record(Record(name, birthday=birthday, email=email, home_address=home_address))
 
     return result
 
@@ -278,8 +280,8 @@ def show_all(param_list):
         phones = record.phones
         birthday = record.birthday.value
         phone_values = []
-        email = record.email
-        address = record.home_address
+        email = record.email.value
+        address = record.home_address.value
         for phone in phones:
             phone_values.append(phone.value)
         result += f"Name: \"{name}\", Phones: {phone_values}, Birthday: [{birthday}], Email: [{email}], , Home address: [{address}]\n"
@@ -436,7 +438,8 @@ def remove_contact(param_list):
 def add_email(param_list):
 
     if param_list[0] in address_book.data:
-        result = address_book[param_list[0]].add_email(param_list[1])
+        email = Email(param_list[1])
+        result = address_book[param_list[0]].add_email(email)
     else:
         result = f"Contact \"{param_list[0]}\" does not exist in address book"
 
@@ -447,8 +450,8 @@ def add_email(param_list):
 def add_address(param_list):
 
     if param_list[0] in address_book.data:
-        address_book[param_list[0]].add_home_address(' '.join(param_list[1:]))
-        result = f"For contact \"{param_list[0]}\" added new address \"{' '.join(param_list[1:])}\""
+        home_address = HomeAddress(' '.join(param_list[1:]))
+        result = address_book[param_list[0]].add_home_address(home_address)
     else:
         result = f"Contact \"{param_list[0]}\" does not exist in address book"
 
@@ -459,8 +462,8 @@ def add_address(param_list):
 def change_email(param_list):
 
     if param_list[0] in address_book.data:
-        result = address_book[param_list[0]].change_email(param_list[1])
-        
+        email = Email(param_list[1])
+        result = address_book[param_list[0]].add_email(email)
     else:
         result = f"Contact \"{param_list[0]}\" does not exist in address book"
 
@@ -471,8 +474,8 @@ def change_email(param_list):
 def change_address(param_list):
 
     if param_list[0] in address_book.data:
-        address_book[param_list[0]].add_home_address(' '.join(param_list[1:]))
-        result = f"For contact \"{param_list[0]}\" address changed to \"{' '.join(param_list[1:])}\""
+        home_address = HomeAddress(' '.join(param_list[1:]))
+        result = address_book[param_list[0]].add_home_address(home_address)
     else:
         result = f"Contact \"{param_list[0]}\" does not exist in address book"
 

@@ -3,6 +3,7 @@ import re
 import os
 from collections import UserDict
 from datetime import datetime, date
+from abc import ABC, abstractmethod
 
 
 class AddressBook(UserDict):
@@ -141,30 +142,19 @@ class Record:
         return result
     
     
-    def is_valid_email(self, email):
-    
-        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-        match = re.match(pattern, email)
-
-        return match is not None
-    
-    
     def add_email(self, email):
-
-        if self.is_valid_email(email):
+        if email.check_value(email.value) == True:
             self.email = email
-            result = f'Value \"{email}\" correct and added to email of \"{self.name.value}\"\n'
+            result = f'Value \"{self.email.value}\" added to email of \"{self.name.value}\"\n'
         else:
-            result = f'Value \"{email}\" is not correct"\n'
+            result = email.check_value(email.value)
 
         return result
     
-
-    
     def add_home_address(self, hm):
         
-        self.home_address = hm
-        result = f'Value \"{self.home_address}\" added to home address of \"{self.name.value}\"\n'
+        self.home_address.value = hm.value
+        result = f'Value \"{self.home_address.value}\" added to address of \"{self.name.value}\"\n'
 
         return result
 
@@ -197,20 +187,18 @@ class Record:
                    
         return result
     
-    def change_email(self, new_email):
+    def change_email(self, email):
         
-        if self.is_valid_email(new_email):
-            self.email = new_email
-            result = f'Value \"{new_email}\" correct and changed to email of \"{self.name.value}\"\n'
-        else:
-            result = f'Value \"{new_email}\" is not correct"\n'
+        self.email.value = email
+        result = f'Value \"{self.email.value}\" added to birthday of \"{self.name.value}\"\n'
 
         return result
     
     def change_home_address(self, new_hm):
         
-        self.home_address.value = new_hm.value
-        result = f"Email changed to \"{new_hm.value}\" for contact \"{self.name.value}\"\n"
+        self.home_address.value = hm.value
+        result = f'Value \"{self.home_address.value}\" added to address of \"{self.name.value}\"\n'
+
         return result
     
 
@@ -232,7 +220,7 @@ class Record:
         return result
 
 
-class Field:
+class Field(ABC):
     
     def __init__(self, value):
 
@@ -253,6 +241,11 @@ class Field:
             raise ValueError(check)
         
     
+    @abstractmethod
+    def check_value(self, value):
+        pass
+        
+    
 class Name(Field):
 
     def check_value(self, value):
@@ -271,10 +264,22 @@ class Phone(Field):
        
         return result
     
+class Email(Field):
     
+    def check_value(self, value):
+        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        match = re.match(pattern, value)
+        if match:
+            result = True
+        else:
+            result = f"""Entered value \"{value}\" is not correct.\nEmail must have the format: user@example.com\n\nTRY AGAIN!!!"""
+        return result
+    
+class HomeAddress(Field):
+    def check_value(self, value):
+        return True    
 
 class Birthday(Field):
-
     def check_value(self, value):
 
         match = re.fullmatch(r'\d{2}\.\d{2}\.\d{4}', value)
@@ -362,15 +367,10 @@ class MyCompleter(Completer):
                 completions = [text.rsplit(' ', 1)[0]+' '+'[string]']
 
         if text.startswith('sort folder'):
-            # Получить путь к папке из введенной строки
             folder_path = text[len('sort folder'):].strip()
-            #print(f"PATH: '{folder_path}'")
 
-            # Проверить, существует ли указанная папка
             if os.path.exists(folder_path) and os.path.isdir(folder_path):
-                # Получить список файлов и папок в указанной директории
                 path_completions = os.listdir(folder_path)
-                #completions.extend(path_completions)
                 completions = [text.rsplit(' ', 1)[0]+' '+text.split(' ', -1)[-1]+p for p in path_completions]
                 
 
