@@ -11,11 +11,11 @@ Module SortFolder will sort your files in the target folder, depends file extens
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/kondrat1206/Project-group7.git
+   git clone https://github.com/kondrat1206/HW_Python_WEB_01.git
    ```
 
    ```bash
-   cd ./Project-group7
+   cd ./HW_Python_WEB_01
    ```
 
 2. Build packet:
